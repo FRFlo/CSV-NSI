@@ -2,10 +2,12 @@ from function import *
 from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
+from functools import partial
 
 
 class App(Tk):
     file = ""
+    columns = ()
 
     def __init__(self):
         Tk.__init__(self)
@@ -23,34 +25,53 @@ class App(Tk):
 
         filemenu = Menu(menu_bar, tearoff=0)
         filemenu.add_command(label="Ouvrir", command=self.choosefile)
+        filemenu.add_command(label="Fermer", command=self.makeentry)
         filemenu.add_separator()
         filemenu.add_command(label="Quitter", command=self.quit)
         menu_bar.add_cascade(label="Fichier", menu=filemenu)
+
+        filtermenu = Menu(menu_bar, tearoff=0)
+        filtermenu.add_command(
+            label="Supprimer le filtre", command=self.filter)
+        filtermenu.add_separator()
+        for key in self.columns:
+            filtermenu.add_command(label=key, command=partial(self.filter, key))
+        menu_bar.add_cascade(label="Filtrer", menu=filtermenu)
 
         self.config(menu=menu_bar)
 
     def choosefile(self):
         file = askopenfilename(title="Ouvrir un fichier CSV", filetypes=[(
             "Fichier CSV", "*.csv"), ("Fichiers TXT", "*.txt"), ("Tous les fichiers", "*.*")])
-        self.makeentry(file)
 
-    def makeentry(self, file=None):
-        if not file:
+        self.columns, self.cache = cache(file)
+        self.icolumns = {k: v for v, k in enumerate(self.columns)}
+        self.makeentry(self.cache)
+
+    def makeentry(self, data=None):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        self.menubar()
+
+        if not data:
             nodata = Label(self, text="Aucunes données",
                            width=20, fg="white", bg="#3B3B3B")
             nodata.grid(column=0, row=0, padx=10, pady=10)
             nodata.place(anchor="center", relx=0.5, rely=0.5)
         else:
-            for widget in self.winfo_children():
-                widget.destroy()
-            self.menubar()
-
-            self.columns, self.cache = cache(file)
-            for y, elt in enumerate(self.cache):
+            for y, elt in enumerate(data):
                 for i, value in enumerate(elt):
                     item = Label(self, text=value,
                                  width=20, fg="white", bg="#3B3B3B")
                     item.grid(column=i, row=y, padx=10, pady=10)
+
+    def filter(self, key=None):
+        if key:
+            self.makeentry(listfilter(self.cache, self.icolumns, key, "banane"))
+        else:
+            self.makeentry(self.cache)
+        
 
 
 App().mainloop()

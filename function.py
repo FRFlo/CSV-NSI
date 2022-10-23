@@ -20,9 +20,9 @@ def search(table: list, indexes: list, key: str, value: str):
     return False
 
 
-def filter(table: list, indexes: list, key: str, value: str):
+def listfilter(table: list, indexes: list, key: str, value: str):
     """
-    Fonction filter qui trie la table en fonction d'un critère
+    Fonction filter qui filtre la table en fonction d'un critère
     """
     icolumns = {k: v for v, k in enumerate(indexes)}
     return list(filter(lambda x: x[icolumns[key]] == value, table))
