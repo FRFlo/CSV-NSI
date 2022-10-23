@@ -41,14 +41,6 @@ class App(Tk):
 
         self.config(menu=menu_bar)
 
-    def choosefile(self):
-        file = askopenfilename(title="Ouvrir un fichier CSV", filetypes=[(
-            "Fichier CSV", "*.csv"), ("Fichiers TXT", "*.txt"), ("Tous les fichiers", "*.*")])
-
-        self.columns, self.cache = cache(file)
-        self.icolumns = {k: v for v, k in enumerate(self.columns)}
-        self.makeentry(self.cache)
-
     def makeentry(self, data=None):
         for widget in self.winfo_children():
             widget.destroy()
@@ -67,10 +59,20 @@ class App(Tk):
                                  width=20, fg="white", bg="#3B3B3B")
                     item.grid(column=i, row=y, padx=1, pady=1)
 
-    def filter(self, key=None):
-        value = askstring("Filtrer", "Valeur à filtrer")
+    def scrollbar(self):
+        Scrollbar()
 
+    def choosefile(self):
+        file = askopenfilename(title="Ouvrir un fichier CSV", filetypes=[(
+            "Fichier CSV", "*.csv"), ("Fichiers TXT", "*.txt"), ("Tous les fichiers", "*.*")])
+
+        self.columns, self.cache = cache(file)
+        self.icolumns = {k: v for v, k in enumerate(self.columns)}
+        self.makeentry(self.cache)
+
+    def filter(self, key=None):
         if key:
+            value = askstring("Filtrer", "Valeur à filtrer")
             self.makeentry(listfilter(
                 self.cache, self.icolumns, key, value))
         else:
