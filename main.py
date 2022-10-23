@@ -1,7 +1,7 @@
 from function import *
 from tkinter import *
-from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
+from tkinter.simpledialog import askstring
 from functools import partial
 
 
@@ -35,7 +35,8 @@ class App(Tk):
             label="Supprimer le filtre", command=self.filter)
         filtermenu.add_separator()
         for key in self.columns:
-            filtermenu.add_command(label=key, command=partial(self.filter, key))
+            filtermenu.add_command(
+                label=key, command=partial(self.filter, key))
         menu_bar.add_cascade(label="Filtrer", menu=filtermenu)
 
         self.config(menu=menu_bar)
@@ -57,21 +58,23 @@ class App(Tk):
         if not data:
             nodata = Label(self, text="Aucunes données",
                            width=20, fg="white", bg="#3B3B3B")
-            nodata.grid(column=0, row=0, padx=10, pady=10)
+            nodata.grid(column=0, row=0, padx=1, pady=1)
             nodata.place(anchor="center", relx=0.5, rely=0.5)
         else:
             for y, elt in enumerate(data):
                 for i, value in enumerate(elt):
                     item = Label(self, text=value,
                                  width=20, fg="white", bg="#3B3B3B")
-                    item.grid(column=i, row=y, padx=10, pady=10)
+                    item.grid(column=i, row=y, padx=1, pady=1)
 
     def filter(self, key=None):
+        value = askstring("Filtrer", "Valeur à filtrer")
+
         if key:
-            self.makeentry(listfilter(self.cache, self.icolumns, key, "banane"))
+            self.makeentry(listfilter(
+                self.cache, self.icolumns, key, value))
         else:
             self.makeentry(self.cache)
-        
 
 
 App().mainloop()
