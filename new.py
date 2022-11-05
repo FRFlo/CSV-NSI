@@ -3,7 +3,6 @@ from pandas import DataFrame, read_csv
 from re import split
 from tkinter import BOTH, END, TOP, X, Frame, Menu, Scrollbar, Tk
 from tkinter.filedialog import askopenfilename
-from tkinter.simpledialog import askstring
 from tkinter.ttk import Entry, Treeview
 
 
