@@ -14,6 +14,7 @@ class App(Tk):
         self.minsize(1280, 720)
         self.maxsize(1920, 1080)
         self.iconbitmap("assets/icon.ico")
+        self.protocol("WM_DELETE_WINDOW", self.quit)
         self.main_frame = Frame(self)
         self.main_frame.pack(fill=BOTH, expand=True)
         self.main_frame.config(background="#36393F")
