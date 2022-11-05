@@ -21,6 +21,7 @@ class App(Tk):
         self.main_frame.config(background="#36393F")
 
         self.page = Page(self.main_frame)
+        self.bind("<Control-s>", self.page.savefile)
 
         self.barmenu = Menu(self)
         filemenu = Menu(self.barmenu, tearoff=0)
@@ -163,7 +164,7 @@ class Page(Frame):
             )
         )
 
-    def savefile(self):
+    def savefile(self, *wargs):
         with open(self.file, "w", newline="") as file:
             csvwriter = writer(file, delimiter=";")
             csvwriter.writerow(self.datatable.stored_dataframe.columns)
