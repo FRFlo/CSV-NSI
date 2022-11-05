@@ -43,7 +43,7 @@ class Table(Treeview):
         self.configure(yscrollcommand=scroll_Y.set, xscrollcommand=scroll_X.set)
         scroll_Y.pack(side="right", fill="y")
         scroll_X.pack(side="bottom", fill="x")
-        self.stored_dataframe = DataFrame()
+        self.stored_dataframe = DataFrame()  # type: ignore
 
         self.line_menu = Menu(self, tearoff=0)
         self.line_menu.add_command(label="Insérer une ligne en dessous", command=self.insert_line)
@@ -81,10 +81,14 @@ class Table(Treeview):
         return None
 
     def _popup(self, event):
-        if self.identify_row(event.y):
-            self.line_menu.post(event.x_root, event.y_root)
-        else:
-            self.context_menu.post(event.x_root, event.y_root)
+        print(self.identify_region(event.x, event.y))
+        match self.identify_region(event.x, event.y):
+            case "cell":
+                self.line_menu.post(event.x_root, event.y_root)
+            case "heading":
+                self.context_menu.post(event.x_root, event.y_root)
+            case _:
+                self.context_menu.post(event.x_root, event.y_root)
 
     def _edit_cell(self, event):
         if self.identify_region(event.x, event.y) != "cell":
@@ -94,13 +98,14 @@ class Table(Treeview):
         column_index = int(column[1:]) -1
         selected_iid = self.focus()
         selected_values = self.item(selected_iid)
-        if column != "#0":
-            selected_text  = selected_values.get("values")[column_index]
+        if column == "#0":
+            return
+        selected_text  = selected_values.get("values")[column_index]
         column_box = self.bbox(selected_iid, column=column)
 
-        entry_edit = Entry(self, width=column_box[2])
-        entry_edit.editing_column_index = column_index
-        entry_edit.editing_item_iid = selected_iid
+        entry_edit = Entry(self, width=column_box[2])  # type: ignore
+        entry_edit.editing_column_index = column_index  # type: ignore
+        entry_edit.editing_item_iid = selected_iid  # type: ignore
         entry_edit.insert(0, selected_text)
         entry_edit.select_range(0, END)
         entry_edit.focus()
@@ -115,7 +120,7 @@ class Table(Treeview):
 
         if column_index != -1:
             current_values = self.item(selected_iid).get("values")
-            current_values[column_index] = new_text
+            current_values[column_index] = new_text  # type: ignore
             self.item(selected_iid, values=current_values)
         
         event.widget.destroy()
