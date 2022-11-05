@@ -44,6 +44,26 @@ class Table(Treeview):
         scroll_X.pack(side="bottom", fill="x")
         self.stored_dataframe = DataFrame()
 
+        self.line_menu = Menu(self, tearoff=0)
+        self.line_menu.add_command(label="Insérer une ligne en dessous", command=self.insert_line)
+        self.line_menu.add_command(label="Supprimer", command=self.delete_selected)
+
+        self.context_menu = Menu(self, tearoff=0)
+        self.context_menu.add_command(label="Insérer une ligne", command=self.insert_line)
+        self.bind("<Button-3>", self._popup)
+        self.bind("<Double-Button-1>", self._edit_cell)
+
+    def insert_line(self):
+        values = []
+        for k in self.stored_dataframe.columns:
+            elt = askstring("Nouvelle ligne", f"Valeur de la colonne {k}")
+        self.insert("", "end", values=values)
+
+    def delete_selected(self):
+        selected = self.selection()
+        for item in selected:
+            self.delete(item)
+
     def set_datatable(self, dataframe):
         self.stored_dataframe = dataframe
         self._draw_table(dataframe)
