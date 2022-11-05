@@ -182,7 +182,7 @@ class Page(Frame):
             self.datatable.reset_table()
         else:
             filter = {}
-            for pair in split(",|;|/", entry):
+            for pair in split(",|;|/", entry):  # type: ignore
                 pair_split = pair.split("=")
                 if len(pair_split) == 2:
                     col = pair_split[0]
