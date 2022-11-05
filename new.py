@@ -82,6 +82,12 @@ class Table(Treeview):
             self.insert("", "end", values=row)
         return None
 
+    def _popup(self, event):
+        if self.identify_row(event.y):
+            self.line_menu.post(event.x_root, event.y_root)
+        else:
+            self.context_menu.post(event.x_root, event.y_root)
+
     def find_value(self, pairs):
         # pairs is a dictionary
         new_df = self.stored_dataframe
