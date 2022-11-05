@@ -13,6 +13,7 @@ class App(Tk):
         self.geometry("1280x720")
         self.minsize(1280, 720)
         self.maxsize(1920, 1080)
+        self.iconbitmap("assets/icon.ico")
         self.main_frame = Frame(self)
         self.main_frame.pack(fill=BOTH, expand=True)
         self.main_frame.config(background="#36393F")
