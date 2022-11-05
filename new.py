@@ -1,8 +1,9 @@
 from csv import writer
 from pandas import DataFrame, read_csv
 from re import split
-from tkinter import BOTH, TOP, X, Frame, Menu, Scrollbar, Tk
+from tkinter import BOTH, END, TOP, X, Frame, Menu, Scrollbar, Tk
 from tkinter.filedialog import askopenfilename
+from tkinter.simpledialog import askstring
 from tkinter.ttk import Entry, Treeview
 
 
@@ -54,10 +55,7 @@ class Table(Treeview):
         self.bind("<Double-Button-1>", self._edit_cell)
 
     def insert_line(self):
-        values = []
-        for k in self.stored_dataframe.columns:
-            elt = askstring("Nouvelle ligne", f"Valeur de la colonne {k}")
-        self.insert("", "end", values=values)
+        self.insert("", "end", values=[""] * len(self.stored_dataframe.columns))
 
     def delete_selected(self):
         selected = self.selection()
@@ -88,6 +86,43 @@ class Table(Treeview):
         else:
             self.context_menu.post(event.x_root, event.y_root)
 
+    def _edit_cell(self, event):
+        if self.identify_region(event.x, event.y) != "cell":
+            return
+        
+        column = self.identify_column(event.x)
+        column_index = int(column[1:]) -1
+        selected_iid = self.focus()
+        selected_values = self.item(selected_iid)
+        if column != "#0":
+            selected_text  = selected_values.get("values")[column_index]
+        column_box = self.bbox(selected_iid, column=column)
+
+        entry_edit = Entry(self, width=column_box[2])
+        entry_edit.editing_column_index = column_index
+        entry_edit.editing_item_iid = selected_iid
+        entry_edit.insert(0, selected_text)
+        entry_edit.select_range(0, END)
+        entry_edit.focus()
+        entry_edit.bind("<FocusOut>", self._edit_cell_focusout)
+        entry_edit.bind("<Return>", self._edit_cell_return)
+        entry_edit.place(x=column_box[0], y=column_box[1], w= column_box[2], h=column_box[3])
+    
+    def _edit_cell_return(self, event):
+        new_text = event.widget.get()
+        selected_iid = event.widget.editing_item_iid
+        column_index = event.widget.editing_column_index
+
+        if column_index != -1:
+            current_values = self.item(selected_iid).get("values")
+            current_values[column_index] = new_text
+            self.item(selected_iid, values=current_values)
+        
+        event.widget.destroy()
+
+    def _edit_cell_focusout(self, event):
+        event.widget.destroy()
+
     def find_value(self, pairs):
         # pairs is a dictionary
         new_df = self.stored_dataframe
@@ -98,7 +133,7 @@ class Table(Treeview):
 
     def reset_table(self):
         self._draw_table(self.stored_dataframe)
-    
+
     def add_element(self, row):
         self.insert("", "end", values=row)
 
