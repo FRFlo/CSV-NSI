@@ -34,6 +34,8 @@ class App(Tk):
         filemenu.add_command(label="Quitter", command=self.quit)
         self.barmenu.add_cascade(label="Fichier", menu=filemenu)
         self.statsmenu = Menu(self.barmenu, tearoff=0)
+        self.statsmenu.add_command(label="Stats générales", command=self.page.show_stats)
+        self.statsmenu.add_separator()
         self.barmenu.add_cascade(label="Statistiques", menu=self.statsmenu)
 
         self.config(menu=self.barmenu)
@@ -57,7 +59,7 @@ class App(Tk):
             )
         )
 
-        self.statsmenu.delete(0, END)
+        self.statsmenu.delete(2, END)
 
         for column in self.page.datatable.stored_dataframe.columns:
             self.statsmenu.add_command(label=column, command=partial(self.page.show_stats, column))
@@ -208,8 +210,14 @@ class Page(Frame):
                         filter[col] = pair_split[1]
             self.datatable.find_value(pairs=filter)
     
-    def show_stats(self, column):
-        stats = dict(self.datatable.stored_dataframe[column].value_counts())
+    def show_stats(self, column="Global"):
+        if column == "Global":
+            stats = {
+                "Nombre de lignes": len(self.datatable.stored_dataframe),
+                "Nombre de colonnes": len(self.datatable.stored_dataframe.columns),
+            }
+        else:
+            stats = dict(self.datatable.stored_dataframe[column].value_counts())
         message = ""
         for key, value in stats.items():
             message += f"{key}: {value}\n"
