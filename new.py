@@ -110,6 +110,7 @@ class Table(Treeview):
         entry_edit.select_range(0, END)
         entry_edit.focus()
         entry_edit.bind("<FocusOut>", self._edit_cell_focusout)
+        entry_edit.bind("<Escape>", self._edit_cell_focusout)
         entry_edit.bind("<Return>", self._edit_cell_return)
         entry_edit.place(x=column_box[0], y=column_box[1], w= column_box[2], h=column_box[3])
     
