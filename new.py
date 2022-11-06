@@ -5,6 +5,7 @@ from re import split
 from tkinter import BOTH, END, TOP, X, Frame, Menu, Scrollbar, Tk
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import showinfo
+from tkinter.simpledialog import askstring
 from tkinter.ttk import Entry, Treeview
 
 
@@ -27,6 +28,7 @@ class App(Tk):
         self.barmenu = Menu(self)
         filemenu = Menu(self.barmenu, tearoff=0)
         filemenu.add_command(label="Ouvrir", command=self.choosefile)
+        filemenu.add_command(label="Ouvrir via une URL", command=self.chooseremotefile)
         filemenu.add_command(label="Sauvegarder", command=self.page.savefile)
         filemenu.add_separator()
         filemenu.add_command(label="Quitter", command=self.quit)
@@ -38,8 +40,8 @@ class App(Tk):
 
         self.mainloop()
 
-    def choosefile(self):
-        self.page.file = askopenfilename(
+    def choosefile(self, file=None):
+        self.page.file = file or askopenfilename(
             title="Ouvrir un fichier CSV",
             filetypes=[
                 ("Fichier CSV", "*.csv"),
@@ -57,6 +59,10 @@ class App(Tk):
 
         for column in self.page.datatable.stored_dataframe.columns:
             self.statsmenu.add_command(label=column, command=partial(self.page.show_stats, column))
+    
+    def chooseremotefile(self):
+        url = askstring("Ouvrir un fichier CSV", "URL du fichier CSV")
+        self.choosefile(url)
 
 
 class Table(Treeview):
