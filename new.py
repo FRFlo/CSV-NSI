@@ -1,8 +1,10 @@
 from csv import writer
+from functools import partial
 from pandas import DataFrame, read_csv
 from re import split
 from tkinter import BOTH, END, TOP, X, Frame, Menu, Scrollbar, Tk
 from tkinter.filedialog import askopenfilename
+from tkinter.messagebox import showinfo
 from tkinter.ttk import Entry, Treeview
 
 
@@ -24,15 +26,37 @@ class App(Tk):
 
         self.barmenu = Menu(self)
         filemenu = Menu(self.barmenu, tearoff=0)
-        filemenu.add_command(label="Ouvrir", command=self.page.choosefile)
+        filemenu.add_command(label="Ouvrir", command=self.choosefile)
         filemenu.add_command(label="Sauvegarder", command=self.page.savefile)
         filemenu.add_separator()
         filemenu.add_command(label="Quitter", command=self.quit)
         self.barmenu.add_cascade(label="Fichier", menu=filemenu)
+        self.statsmenu = Menu(self.barmenu, tearoff=0)
+        self.barmenu.add_cascade(label="Statistiques", menu=self.statsmenu)
 
         self.config(menu=self.barmenu)
 
         self.mainloop()
+
+    def choosefile(self):
+        self.page.file = askopenfilename(
+            title="Ouvrir un fichier CSV",
+            filetypes=[
+                ("Fichier CSV", "*.csv"),
+                ("Fichiers TXT", "*.txt"),
+                ("Tous les fichiers", "*.*"),
+            ],
+        )
+        self.page.datatable.set_datatable(
+            read_csv(
+                self.page.file, delimiter=";", encoding="utf-8", low_memory=False, nrows=100000
+            )
+        )
+
+        self.statsmenu.delete(0, END)
+
+        for column in self.page.datatable.stored_dataframe.columns:
+            self.statsmenu.add_command(label=column, command=partial(self.page.show_stats, column))
 
 
 class Table(Treeview):
@@ -145,6 +169,7 @@ class Table(Treeview):
 
 
 class Page(Frame):
+    file = ""
     def __init__(self, parent):
         super().__init__(parent)
         self.searchbox = Entry(parent)
@@ -153,21 +178,6 @@ class Page(Frame):
 
         self.datatable = Table(parent)
         self.datatable.pack(fill=BOTH, expand=True, side=TOP)
-
-    def choosefile(self):
-        self.file = askopenfilename(
-            title="Ouvrir un fichier CSV",
-            filetypes=[
-                ("Fichier CSV", "*.csv"),
-                ("Fichiers TXT", "*.txt"),
-                ("Tous les fichiers", "*.*"),
-            ],
-        )
-        self.datatable.set_datatable(
-            read_csv(
-                self.file, delimiter=";", encoding="utf-8", low_memory=False, nrows=100000
-            )
-        )
 
     def savefile(self, *wargs):
         with open(self.file, "w", newline="") as file:
@@ -190,6 +200,13 @@ class Page(Frame):
                     if col in self.datatable.stored_dataframe.columns:
                         filter[col] = pair_split[1]
             self.datatable.find_value(pairs=filter)
+    
+    def show_stats(self, column):
+        stats = dict(self.datatable.stored_dataframe[column].value_counts())
+        message = ""
+        for key, value in stats.items():
+            message += f"{key}: {value}\n"
+        showinfo(title=f"Colonne: {column}", message=message)
 
 
 App()
