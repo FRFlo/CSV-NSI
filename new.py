@@ -49,6 +49,8 @@ class App(Tk):
                 ("Tous les fichiers", "*.*"),
             ],
         )
+        if not self.page.file:
+            return
         self.page.datatable.set_datatable(
             read_csv(
                 self.page.file, delimiter=";", encoding="utf-8", low_memory=False, nrows=100000
@@ -111,7 +113,6 @@ class Table(Treeview):
         return None
 
     def _popup(self, event):
-        print(self.identify_region(event.x, event.y))
         match self.identify_region(event.x, event.y):
             case "cell":
                 self.line_menu.post(event.x_root, event.y_root)
