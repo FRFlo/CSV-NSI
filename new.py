@@ -176,7 +176,7 @@ class Table(Treeview): # Création de la classe Table qui hérite de la classe T
         self.insert("", "end", values=row) # On insère la ligne dans la Table
 
 
-class Page(Frame): # Classe permettant de créer une page
+class Page(Frame): # Classe permettant de créer une page qui hérite de la classe Frame
     file = "" # Variable permettant de stocker le chemin du fichier
     def __init__(self, parent): # Fonction permettant d'initialiser la classe
         super().__init__(parent) # On appelle le constructeur de la classe parente
